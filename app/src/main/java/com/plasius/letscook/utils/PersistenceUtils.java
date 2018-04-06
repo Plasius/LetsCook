@@ -2,6 +2,10 @@ package com.plasius.letscook.utils;
 
 import android.content.Context;
 
+import com.plasius.letscook.data.Ingredient;
+
+import java.util.List;
+
 public class PersistenceUtils {
     private static final String SAVE_NAME = "com.plasius.letscook.saves";
 
@@ -31,6 +35,8 @@ public class PersistenceUtils {
     public static int getSharedPrefInt(Context context, String key, int defValue) {
         return context.getSharedPreferences(SAVE_NAME, Context.MODE_PRIVATE).getInt(key, defValue);
     }
+
+
 
 
 }

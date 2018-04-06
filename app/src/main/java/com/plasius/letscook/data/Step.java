@@ -7,14 +7,17 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.Query;
+import android.os.Parcel;
+import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(tableName = "steps")
-public class Step {
+public class Step implements Parcelable{
     @PrimaryKey(autoGenerate = true)
-    private long id;
-    private long recipeId;
+    private int id;
+    private int recipeId;
     private int stepId;
     private String shortDescription;
     private String description;
@@ -23,19 +26,19 @@ public class Step {
 
 
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public long getId(){
+    public int getId(){
         return id;
     }
 
-    public long getRecipeId() {
+    public int getRecipeId() {
         return recipeId;
     }
 
-    public void setRecipeId(long recipeId) {
+    public void setRecipeId(int recipeId) {
         this.recipeId = recipeId;
     }
 
@@ -79,6 +82,7 @@ public class Step {
         VideoURL = videoURL;
     }
 
+
     @Dao
     public interface StepDAO{
         @Query("SELECT * FROM steps WHERE recipeId=:recipeId")
@@ -90,4 +94,43 @@ public class Step {
         @Query("DELETE FROM steps")
         void deleteAll();
     }
+
+    //PARCEL
+    public Step(){}
+
+    public Step(Parcel in){
+        setId(in.readInt());
+        setRecipeId(in.readInt());
+        setStepId(in.readInt());
+        setShortDescription(in.readString());
+        setDescription(in.readString());
+        setThumbnailURL(in.readString());
+        setVideoURL(in.readString());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(getId());
+        dest.writeInt(getRecipeId());
+        dest.writeInt(getStepId());
+        dest.writeString(getShortDescription());
+        dest.writeString(getDescription());
+        dest.writeString(getThumbnailURL());
+        dest.writeString(getVideoURL());
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator(){
+        public Step createFromParcel(Parcel in){
+            return new Step(in);
+        }
+
+        public Step[] newArray(int size){
+            return new Step[size];
+        }
+    };
 }

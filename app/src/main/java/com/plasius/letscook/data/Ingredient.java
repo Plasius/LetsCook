@@ -6,33 +6,36 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.Query;
+import android.os.Parcel;
+import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(tableName = "ingredients")
-public class Ingredient {
+public class Ingredient implements Parcelable{
     @PrimaryKey(autoGenerate = true)
-    private long id;
-    private long recipeId;
+    private int id;
+    private int recipeId;
     private String name;
     private int quantity;
     private String measure;
 
 
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public long getRecipeId() {
+    public int getRecipeId() {
         return recipeId;
     }
 
-    public void setRecipeId(long recipeId) {
+    public void setRecipeId(int recipeId) {
         this.recipeId = recipeId;
     }
 
@@ -71,4 +74,44 @@ public class Ingredient {
         @Query("DELETE FROM ingredients")
         void deleteAll();
     }
+
+    //Parcelable
+    public Ingredient(){
+
+    }
+
+    public Ingredient(Parcel in){
+        setId(in.readInt());
+        setRecipeId(in.readInt());
+        setName(in.readString());
+        setQuantity(in.readInt());
+        setMeasure(in.readString());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(getId());
+        dest.writeInt(getRecipeId());
+        dest.writeString(getName());
+        dest.writeInt(getQuantity());
+        dest.writeString(getMeasure());
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Ingredient createFromParcel(Parcel in) {
+            return new Ingredient(in);
+        }
+
+        public Ingredient[] newArray(int size) {
+            return new Ingredient[size];
+        }
+    };
+
+
+
 }

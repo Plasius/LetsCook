@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import com.plasius.letscook.adapters.OnItemClickListener;
 import com.plasius.letscook.adapters.RecipeAdapter;
 import com.plasius.letscook.data.AppDatabase;
 import com.plasius.letscook.data.Ingredient;
@@ -22,13 +23,14 @@ import org.json.JSONObject;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Boolean>, RecipeAdapter.OnItemClickListener{
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Boolean>, OnItemClickListener {
     private static final int MOVIE_LOADER_ID = 647;
     private static final int LOAD_RECIPES = 511;
     private static final int FETCH_RECIPES = 939;
@@ -43,12 +45,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        //if theres no data
-        if(!PersistenceUtils.getSharedPrefBool(this, "data",false)) {
-            initLoader(FETCH_RECIPES);
-        }else{
+        if(PersistenceUtils.getSharedPrefBool(this, "data",false)) {
             //load the data
             initLoader(LOAD_RECIPES);
+        }else{
+            //fetch data
+            initLoader(FETCH_RECIPES);
         }
 
 
@@ -58,17 +60,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private void loadView(){
         RecipeAdapter recipeAdapter = new RecipeAdapter(this, recipeList);
         recyclerView.setAdapter(recipeAdapter);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        if(getResources().getBoolean(R.bool.isTablet))
+            recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        else
+            recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
     }
 
     //LOADER
+    //we initialise the loader based on what we want
     private void initLoader(int whatToDo) {
         Bundle bundle = new Bundle();
         bundle.putInt("whatToDo", whatToDo);
 
         LoaderManager loaderManager = getSupportLoaderManager();
-        Loader<String> loader = loaderManager.getLoader(MOVIE_LOADER_ID);
+        Loader<Boolean> loader = loaderManager.getLoader(MOVIE_LOADER_ID);
         if (loader == null) {
             loaderManager.initLoader(MOVIE_LOADER_ID, bundle, this);
         } else {
@@ -94,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
 
+    //The loader tasked with getting the recipes from the web or db
     static class RecipesAsyncLoader extends AsyncTaskLoader<Boolean> {
         MainActivity context;
         Bundle args;
@@ -105,11 +112,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             context= c;
         }
 
+        //preparing to load
         @Override
         protected void onStartLoading() {
             forceLoad();
         }
 
+        //called on the work thread
+        //we either fetch the data from the web or load it from our db
         @Override
         public Boolean loadInBackground() {
             if(args.getInt("whatToDo") == LOAD_RECIPES){
@@ -156,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     tempRecipe = new Recipe();
                     recipeObj = jArray.getJSONObject(i);
 
-                    tempRecipe.setId(recipeObj.getLong("id"));
+                    tempRecipe.setId(recipeObj.getInt("id"));
                     tempRecipe.setName(recipeObj.getString("name"));
                     tempRecipe.setServings(recipeObj.getInt("servings"));
                     tempRecipe.setImageURL(recipeObj.getString("image"));
@@ -208,23 +218,25 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             return true;
         }
 
+        //if we fetched the data from the web we proceed to load it
+        //if we loaded the data from the db we load it in the adapter
         @Override
         public void deliverResult(Boolean gotData) {
             if(args.getInt("whatToDo") == LOAD_RECIPES)
                 context.loadView();
-            else if(gotData){
+            else if(gotData && args.getInt("whatToDo") == FETCH_RECIPES){
                 PersistenceUtils.setSharedPrefBool(context, "data", true);
-                context.loadView();
+                context.initLoader(LOAD_RECIPES);
             }
 
         }
     }
 
     //recyclerview onitemclicklistener
+    //we send the selected recipe to the MasterActivity
     @Override
     public void onItemClick(int recipeID) {
         PersistenceUtils.setSharedPrefInt(this, "currentRecipe", recipeID);
-
         Intent i = new Intent(this, MasterActivity.class);
         startActivity(i);
     }

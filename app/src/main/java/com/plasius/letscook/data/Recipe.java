@@ -7,12 +7,13 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.Query;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(tableName = "recipes")
 public class Recipe {
     @PrimaryKey(autoGenerate = false)
-    private long id;
+    private int id;
 
     @ColumnInfo(name = "name")
     private String name;
@@ -25,11 +26,11 @@ public class Recipe {
 
 
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -63,7 +64,7 @@ public class Recipe {
         List<Recipe> getAll();
 
         @Query("SELECT * FROM recipes WHERE id= :id")
-        Recipe getRecipeById(long id);
+        Recipe getRecipeById(int id);
 
         @Query("SELECT COUNT(*) from recipes")
         int getCount();
