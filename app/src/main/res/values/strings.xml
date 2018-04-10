@@ -3,5 +3,8 @@
     <string name="servings">Servings:</string>
     <string name="previous">Previous step</string>
     <string name="next_step">Next step</string>
+    <string name="thumbnail">thumbnail</string>
+    <string name="ingredients">Ingredients:</string>
+    <string name="please_select_a_step">Please select a step</string>
 
 </resources>

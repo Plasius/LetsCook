@@ -1,5 +1,6 @@
 package com.plasius.letscook.adapters;
 
+import android.arch.persistence.room.ColumnInfo;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
@@ -23,14 +24,15 @@ import butterknife.ButterKnife;
 public class MasterAdapter extends RecyclerView.Adapter<MasterAdapter.ViewHolder>{
     List<Step> steps;
     Context context;
-    View currentSelected;
+    View currentSelectedView;
+    int currentSelected;
 
     private static OnItemClickListener listener;
 
-    public MasterAdapter(Context c, List<Step> stepList, int ingredientCount){
+    public MasterAdapter(Context c, List<Step> stepList, int ingredientCount, int index){
         steps= stepList;
         context = c;
-
+        currentSelected = index;
         listener = (MasterActivity) c;
 
     }
@@ -46,17 +48,23 @@ public class MasterAdapter extends RecyclerView.Adapter<MasterAdapter.ViewHolder
         holder.tv_shortDescription.setText(steps.get(position).getShortDescription());
         holder.tv_longDescription.setText(steps.get(position).getDescription());
 
+        if(currentSelected == position && context.getResources().getBoolean(R.bool.isTablet)){
+            holder.cardView.setBackgroundColor(Color.LTGRAY);
+            currentSelectedView = holder.cardView;
+        }
+
+
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listener.onItemClick(position);
-
                 if(context.getResources().getBoolean(R.bool.isTablet)) {
-                    if (currentSelected != null)
-                        currentSelected.setBackgroundColor(Color.WHITE);
+                    if (currentSelectedView != null)
+                        currentSelectedView.setBackgroundColor(Color.WHITE);
 
                     v.setBackgroundColor(Color.LTGRAY);
-                    currentSelected = v;
+                    currentSelectedView = v;
+                    currentSelected = position;
                 }
             }
         });

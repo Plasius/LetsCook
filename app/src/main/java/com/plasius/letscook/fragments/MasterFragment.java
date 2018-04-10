@@ -35,9 +35,11 @@ public class MasterFragment extends Fragment {
     }
 
 
-    public void loadSteps(List<Step> steps, int ingredients){
-        rv.setAdapter(new MasterAdapter(getActivity(), steps, ingredients));
+    public void loadSteps(List<Step> steps, int ingredients, int index){
+        rv.setAdapter(new MasterAdapter(getActivity(), steps, ingredients, index));
         rv.setLayoutManager(new LinearLayoutManager(getActivity()));
+        rv.scrollToPosition(index);
+
 
     }
 }

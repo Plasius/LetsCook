@@ -3,11 +3,13 @@ package com.plasius.letscook;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Parcelable;
+import android.os.PersistableBundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import com.plasius.letscook.adapters.OnItemClickListener;
@@ -23,28 +25,48 @@ import java.util.List;
 
 public class MasterActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Boolean>, OnItemClickListener{
     private static final int MOVIE_LOADER_ID = 916;
+    int currentStep;
     List<Step> stepList;
     List<Ingredient> ingredientList;
 
 
     @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if(savedInstanceState != null){
+                currentStep = savedInstanceState.getInt("currentStep");
+                stepList = savedInstanceState.getParcelableArrayList("steps");
+                ingredientList = savedInstanceState.getParcelableArrayList("ingredients");
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_master);
-
-        if(savedInstanceState != null){
-            if(savedInstanceState.containsKey("steps") && savedInstanceState.containsKey("ingredients")){
-                stepList = savedInstanceState.getParcelableArrayList("steps");
-                ingredientList = savedInstanceState.getParcelableArrayList("ingredients");
-            }
-        }
-
         initLoader();
     }
 
+    private void initFragment(){
+        DetailFragment detailFragment = DetailFragment.newInstance(stepList, ingredientList, currentStep);
+
+        if(getSupportFragmentManager().findFragmentByTag("fragment-detail") != null)
+            getSupportFragmentManager().beginTransaction().replace(R.id.activity_detail_framelayout, detailFragment, "fragment-detail").commit();
+        else
+            getSupportFragmentManager().beginTransaction().add(R.id.activity_detail_framelayout, detailFragment, "fragment-detail").commit();
+
+    }
+
+
+
+
     private void initLoader(){
         LoaderManager loaderManager = getSupportLoaderManager();
-        loaderManager.initLoader(MOVIE_LOADER_ID, null, this);
+        if(loaderManager.getLoader(MOVIE_LOADER_ID) == null)
+            loaderManager.initLoader(MOVIE_LOADER_ID, null, this);
+        else
+            loaderManager.restartLoader(MOVIE_LOADER_ID, null, this);
 
     }
 
@@ -57,11 +79,6 @@ public class MasterActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     public void onLoadFinished(Loader<Boolean> loader, Boolean data) {
-        if(stepList == null || ingredientList == null)
-            return;
-
-        MasterFragment masterFragment = (MasterFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_master);
-        masterFragment.loadSteps(stepList, ingredientList.size());
 
     }
 
@@ -95,14 +112,35 @@ public class MasterActivity extends AppCompatActivity implements LoaderManager.L
             return true;
         }
 
+        @Override
+        public void deliverResult(Boolean data) {
+            super.deliverResult(data);
 
+
+            if(context.stepList == null || context.ingredientList == null)
+                return;
+            MasterFragment masterFragment = (MasterFragment) context.getSupportFragmentManager().findFragmentById(R.id.fragment_master);
+            masterFragment.loadSteps(context.stepList, context.ingredientList.size(), context.currentStep);
+
+
+            if(context.getResources().getBoolean(R.bool.isTablet))
+                context.initFragment();
+        }
     }
 
     //pressed element in recyclerview
     @Override
     public void onItemClick(int position) {
         if(getResources().getBoolean(R.bool.isTablet)){
-            //TODO adapt detailfragment
+            currentStep = position;
+
+            DetailFragment detailFragment = DetailFragment.newInstance(stepList, ingredientList, currentStep);
+
+            if(getSupportFragmentManager().findFragmentByTag("fragment-detail") != null)
+                getSupportFragmentManager().beginTransaction().replace(R.id.activity_detail_framelayout, detailFragment, "fragment-detail").commit();
+            else
+                getSupportFragmentManager().beginTransaction().add(R.id.activity_detail_framelayout, detailFragment, "fragment-detail").commit();
+
 
         }else{
             //we are on mobile launch a DetailActivity
@@ -125,6 +163,7 @@ public class MasterActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putInt("currentStep", currentStep);
         outState.putParcelableArrayList("steps", new ArrayList<>(stepList));
         outState.putParcelableArrayList("ingredients", new ArrayList<>(ingredientList));
     }

@@ -53,11 +53,6 @@ public class DetailActivity extends AppCompatActivity {
     private void initFragment(){
         DetailFragment detailFragment = DetailFragment.newInstance(stepList, ingredientList, currentStep);
 
-        /*if(stepList == null && ingredientList == null && currentStep == -1) {
-            detailFragment.setArguments(getIntent().getExtras());
-            getSupportFragmentManager().beginTransaction().add(detailFragment, "fragment-detail").commit();
-        }else{*/
-
         if(getSupportFragmentManager().findFragmentByTag("fragment-detail") != null)
             getSupportFragmentManager().beginTransaction().replace(R.id.activity_detail_framelayout, detailFragment, "fragment-detail").commit();
         else
@@ -92,4 +87,7 @@ public class DetailActivity extends AppCompatActivity {
         outState.putParcelableArrayList("steps", new ArrayList<>(stepList));
         outState.putInt("currentStep", currentStep);
     }
+
+
+
 }
