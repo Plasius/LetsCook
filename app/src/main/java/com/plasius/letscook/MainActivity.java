@@ -16,6 +16,7 @@ import com.plasius.letscook.data.Ingredient;
 import com.plasius.letscook.data.Recipe;
 import com.plasius.letscook.data.Step;
 import com.plasius.letscook.utils.PersistenceUtils;
+import com.plasius.letscook.widget.RecipeWidgetProvider;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -237,6 +238,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onItemClick(int recipeID) {
         PersistenceUtils.setSharedPrefInt(this, "currentRecipe", recipeID);
+        PersistenceUtils.setSharedPrefString(this, "currentRecipeName", recipeList.get(recipeID-1).getName());
         Intent i = new Intent(this, MasterActivity.class);
         startActivity(i);
     }

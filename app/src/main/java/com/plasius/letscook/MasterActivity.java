@@ -10,7 +10,9 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.plasius.letscook.adapters.OnItemClickListener;
 import com.plasius.letscook.data.AppDatabase;
@@ -19,6 +21,7 @@ import com.plasius.letscook.data.Step;
 import com.plasius.letscook.fragments.DetailFragment;
 import com.plasius.letscook.fragments.MasterFragment;
 import com.plasius.letscook.utils.PersistenceUtils;
+import com.plasius.letscook.widget.RecipeWidgetProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +48,12 @@ public class MasterActivity extends AppCompatActivity implements LoaderManager.L
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_master);
+
+        //set title
+        ((TextView)findViewById(R.id.toolbar_tv_title)).setText(PersistenceUtils.getSharedPrefString(this, "currentRecipeName", "Current Recipe"));
+        //we opened a recipe, let's make this the current one
+        RecipeWidgetProvider.sendRefreshBroadcast(this);
+
         initLoader();
     }
 

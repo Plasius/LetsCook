@@ -18,11 +18,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MasterActivity"
-            android:parentActivityName=".MainActivity"/>
+        <activity
+            android:name=".MasterActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".DetailActivity"
+            android:parentActivityName=".MasterActivity" />
 
-        <activity android:name=".DetailActivity"
-            android:parentActivityName=".MasterActivity"/>
+        <receiver android:name=".widget.RecipeWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/recipe_widget_provider_info" />
+        </receiver>
+        <service android:name=".widget.IngredientRemoteViewService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"></service>
 
     </application>
 
