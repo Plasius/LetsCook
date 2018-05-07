@@ -20,17 +20,25 @@ import com.plasius.letscook.data.Ingredient;
 import com.plasius.letscook.data.Step;
 import com.plasius.letscook.fragments.DetailFragment;
 import com.plasius.letscook.fragments.MasterFragment;
+import com.plasius.letscook.utils.NetworkUtils;
 import com.plasius.letscook.utils.PersistenceUtils;
 import com.plasius.letscook.widget.RecipeWidgetProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+* Activity present on both Mobile and Tablet
+* Layout changes based on device
+* Hosts a MasterFragment and a DetailFragment (at most)
+*/
+
 public class MasterActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Boolean>, OnItemClickListener{
     private static final int MOVIE_LOADER_ID = 916;
     int currentStep;
     List<Step> stepList;
     List<Ingredient> ingredientList;
+    private Parcelable listState;
 
 
     @Override
@@ -41,6 +49,7 @@ public class MasterActivity extends AppCompatActivity implements LoaderManager.L
                 currentStep = savedInstanceState.getInt("currentStep");
                 stepList = savedInstanceState.getParcelableArrayList("steps");
                 ingredientList = savedInstanceState.getParcelableArrayList("ingredients");
+                listState = savedInstanceState.getParcelable("rvPos");
         }
     }
 
@@ -48,6 +57,9 @@ public class MasterActivity extends AppCompatActivity implements LoaderManager.L
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_master);
+
+        if(!NetworkUtils.isNetworkAvailable(this))
+            Toast.makeText(this, "Please check your connection", Toast.LENGTH_SHORT).show();
 
         //set title
         ((TextView)findViewById(R.id.toolbar_tv_title)).setText(PersistenceUtils.getSharedPrefString(this, "currentRecipeName", "Current Recipe"));
@@ -57,7 +69,7 @@ public class MasterActivity extends AppCompatActivity implements LoaderManager.L
         initLoader();
     }
 
-    private void initFragment(){
+    private void initDetailFragment(){
         DetailFragment detailFragment = DetailFragment.newInstance(stepList, ingredientList, currentStep);
 
         if(getSupportFragmentManager().findFragmentByTag("fragment-detail") != null)
@@ -131,9 +143,12 @@ public class MasterActivity extends AppCompatActivity implements LoaderManager.L
             MasterFragment masterFragment = (MasterFragment) context.getSupportFragmentManager().findFragmentById(R.id.fragment_master);
             masterFragment.loadSteps(context.stepList, context.ingredientList.size(), context.currentStep);
 
+            if(context.listState != null){
+                masterFragment.rv.getLayoutManager().onRestoreInstanceState(context.listState);
+            }
 
             if(context.getResources().getBoolean(R.bool.isTablet))
-                context.initFragment();
+                context.initDetailFragment();
         }
     }
 
@@ -175,6 +190,7 @@ public class MasterActivity extends AppCompatActivity implements LoaderManager.L
         outState.putInt("currentStep", currentStep);
         outState.putParcelableArrayList("steps", new ArrayList<>(stepList));
         outState.putParcelableArrayList("ingredients", new ArrayList<>(ingredientList));
+        outState.putParcelable("rvPos", ((MasterFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_master)).rv.getLayoutManager().onSaveInstanceState());
     }
 
 }

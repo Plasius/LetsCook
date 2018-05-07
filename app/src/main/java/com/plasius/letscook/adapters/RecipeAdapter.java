@@ -43,8 +43,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
     public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.tv_name.setText(recipeList.get(position).getName());
         holder.tv_servings.setText(context.getString(R.string.servings) + Integer.toString(recipeList.get(position).getServings()));
+
         if(!recipeList.get(position).getImageURL().isEmpty())
             Picasso.get().load(recipeList.get(position).getImageURL()).into(holder.iv_image);
+        else
+            Picasso.get().load(R.drawable.food).into(holder.iv_image);
 
 
         holder.itemView.setOnClickListener(new View.OnClickListener(){

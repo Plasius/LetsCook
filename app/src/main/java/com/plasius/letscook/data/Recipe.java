@@ -15,15 +15,9 @@ public class Recipe {
     @PrimaryKey(autoGenerate = false)
     private int id;
 
-    @ColumnInfo(name = "name")
     private String name;
-
-    @ColumnInfo(name = "servings")
     private int servings;
-
-    @ColumnInfo(name = "imageURL")
     private String imageURL;
-
 
 
     public int getId() {

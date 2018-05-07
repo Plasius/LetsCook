@@ -21,7 +21,7 @@ import butterknife.ButterKnife;
 
 
 public class MasterFragment extends Fragment {
-    RecyclerView rv;
+    public RecyclerView rv;
 
     boolean isDualPane;
     int currentPosition;
@@ -38,8 +38,6 @@ public class MasterFragment extends Fragment {
     public void loadSteps(List<Step> steps, int ingredients, int index){
         rv.setAdapter(new MasterAdapter(getActivity(), steps, ingredients, index));
         rv.setLayoutManager(new LinearLayoutManager(getActivity()));
-        rv.scrollToPosition(index);
-
 
     }
 }

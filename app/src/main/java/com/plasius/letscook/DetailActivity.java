@@ -12,15 +12,23 @@ import com.plasius.letscook.data.AppDatabase;
 import com.plasius.letscook.data.Ingredient;
 import com.plasius.letscook.data.Step;
 import com.plasius.letscook.fragments.DetailFragment;
+import com.plasius.letscook.utils.NetworkUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 //fragmentocmpatactivity?
+
+/*
+* Activity opened only from mobile
+* Hosts 1 DetailFragment
+*/
+
 public class DetailActivity extends AppCompatActivity {
     int currentStep;
     List<Step> stepList;
     List<Ingredient> ingredientList;
+
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -36,6 +44,10 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        if(!NetworkUtils.isNetworkAvailable(this))
+            Toast.makeText(this, "Please check your connection", Toast.LENGTH_SHORT).show();
+
 
         if(stepList == null){
             stepList = getIntent().getParcelableArrayListExtra("steps");

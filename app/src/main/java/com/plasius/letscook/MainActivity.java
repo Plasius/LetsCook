@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
 import com.plasius.letscook.adapters.OnItemClickListener;
 import com.plasius.letscook.adapters.RecipeAdapter;
@@ -15,6 +16,7 @@ import com.plasius.letscook.data.AppDatabase;
 import com.plasius.letscook.data.Ingredient;
 import com.plasius.letscook.data.Recipe;
 import com.plasius.letscook.data.Step;
+import com.plasius.letscook.utils.NetworkUtils;
 import com.plasius.letscook.utils.PersistenceUtils;
 import com.plasius.letscook.widget.RecipeWidgetProvider;
 
@@ -31,6 +33,11 @@ import java.util.Scanner;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+
+/*
+* Activity launched open opening the app
+* fetches the recipes and updates the database
+*/
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Boolean>, OnItemClickListener {
     private static final int MOVIE_LOADER_ID = 647;
     private static final int LOAD_RECIPES = 511;
@@ -44,6 +51,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if(!NetworkUtils.isNetworkAvailable(this))
+            Toast.makeText(this, "Please check your connection", Toast.LENGTH_SHORT).show();
+
+
         ButterKnife.bind(this);
 
         if(PersistenceUtils.getSharedPrefBool(this, "data",false)) {
