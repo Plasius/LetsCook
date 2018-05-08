@@ -5,7 +5,9 @@ import android.os.Parcelable;
 import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.plasius.letscook.data.AppDatabase;
@@ -13,6 +15,7 @@ import com.plasius.letscook.data.Ingredient;
 import com.plasius.letscook.data.Step;
 import com.plasius.letscook.fragments.DetailFragment;
 import com.plasius.letscook.utils.NetworkUtils;
+import com.plasius.letscook.utils.PersistenceUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +40,7 @@ public class DetailActivity extends AppCompatActivity {
             stepList = savedInstanceState.getParcelableArrayList("steps");
             ingredientList = savedInstanceState.getParcelableArrayList("ingredients");
             currentStep = savedInstanceState.getInt("currentStep", 0);
+            findViewById(R.id.fragment_detail_sv).setScrollY(savedInstanceState.getInt("scrollPos"));
         }
     }
 
@@ -44,6 +48,14 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        Toolbar toolbar = findViewById(R.id.my_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        //set title
+        getSupportActionBar().setTitle(PersistenceUtils.getSharedPrefString(this, "currentRecipeName", "Current Recipe"));
+
 
         if(!NetworkUtils.isNetworkAvailable(this))
             Toast.makeText(this, "Please check your connection", Toast.LENGTH_SHORT).show();
@@ -98,6 +110,7 @@ public class DetailActivity extends AppCompatActivity {
         outState.putParcelableArrayList("ingredients", new ArrayList<>(ingredientList));
         outState.putParcelableArrayList("steps", new ArrayList<>(stepList));
         outState.putInt("currentStep", currentStep);
+        outState.putInt("scrollPos", findViewById(R.id.fragment_detail_sv).getScrollY());
     }
 
 

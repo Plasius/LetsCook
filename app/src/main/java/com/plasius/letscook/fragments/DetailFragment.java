@@ -130,6 +130,18 @@ public class DetailFragment extends Fragment {
         releasePlayer();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        releasePlayer();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        releasePlayer();
+    }
+
     private void releasePlayer(){
         if(exoPlayer==null)
             return;

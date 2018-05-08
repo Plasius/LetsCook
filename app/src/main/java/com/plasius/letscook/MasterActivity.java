@@ -9,10 +9,10 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import com.plasius.letscook.adapters.OnItemClickListener;
 import com.plasius.letscook.data.AppDatabase;
@@ -58,13 +58,18 @@ public class MasterActivity extends AppCompatActivity implements LoaderManager.L
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_master);
 
-        if(!NetworkUtils.isNetworkAvailable(this))
-            Toast.makeText(this, "Please check your connection", Toast.LENGTH_SHORT).show();
+
+        Toolbar toolbar = findViewById(R.id.my_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //set title
-        ((TextView)findViewById(R.id.toolbar_tv_title)).setText(PersistenceUtils.getSharedPrefString(this, "currentRecipeName", "Current Recipe"));
+        getSupportActionBar().setTitle(PersistenceUtils.getSharedPrefString(this, "currentRecipeName", "Current Recipe"));
         //we opened a recipe, let's make this the current one
         RecipeWidgetProvider.sendRefreshBroadcast(this);
+
+        if(!NetworkUtils.isNetworkAvailable(this))
+            Toast.makeText(this, "Please check your connection", Toast.LENGTH_SHORT).show();
 
         initLoader();
     }
